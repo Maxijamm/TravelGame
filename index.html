@@ -13,7 +13,7 @@
     <h1>Travel Game</h1>
     <div>
         <div>
-            Aktueller Standort:
+            Reiseziel:
             <input type="text" id="address-input" placeholder="Enter an address">
             <button id="go-to-address-btn">Go to Address</button>
         </div>
@@ -27,13 +27,32 @@
     <div id="map" style="height: 500px;"></div>
 
     <button id="toggle-circle-btn">Toggle Circle</button>
+    <br>
+    <br>
+    <!-- Section to display start and destination information -->
+    <h3>Route Information:</h3>
+    <div id="route-info">
+        <p id="start-location">Start Location: </p>
+        <p id="destination-location">Destination: </p>
+    </div>
+    <progress id="progress-bar" value="0" max="100"></progress>
+    <span id="progress-text">0%</span>
+
+    <!-- Current position of the player -->
+    <h3>Current Position:</h3>
+    <p id="current-position">Latitude: 48.00923, Longitude: 11.59002</p>
+
     <h3>Closest Train Stations:</h3>
     <ul id="stations-list"></ul>
+
+    <div id="items">
+    <h3>Items:</h3>
+        <ul>
+            <li>Energydrink (erhöht walking speed auf 8km/h für die nächsten 30 Minuten)</li>
+        </ul>
+        <p>Oder gehe zum Item-Shop</p>
+    </div>
     
-    <h3>Item Shop:</h3>
-    <ul>
-        <li>Energydrink (erhöht walking speed auf 8km/h für die nächsten 30 Minuten)</li>
-    </ul>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
