@@ -62,7 +62,6 @@ function geocodeAddress(address) {
 
 // Event listener for the "Go to Address" button click
 document.getElementById('go-to-address-btn').addEventListener('click', function () {
-    console.log("test")
     var address = document.getElementById('address-input').value;
     if (address) {
         geocodeAddress(address);
