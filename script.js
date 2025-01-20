@@ -2,9 +2,10 @@ let lat = 48.00923;
 let lon = 11.59002;
 let circle;
 let marker;
+let line;  // Variable for the polyline
 
 // Initialize the map
-var map = L.map('map').setView([lat, lon], 13); // Default coordinates (London) until an address is entered
+var map = L.map('map').setView([lat, lon], 13); // Default coordinates (initial location)
 
 // Add OpenStreetMap tile layer to the map
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -13,7 +14,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Initialize the marker at the initial coordinates
 marker = L.marker([lat, lon]).addTo(map)
-    .bindPopup("<b>Hello world!</b><br>I am a popup.")
+    .bindPopup("<b>Initial Location</b><br>Latitude: " + lat + ", Longitude: " + lon)
     .openPopup();
 
 // Function to toggle the circle around the marker
@@ -42,19 +43,28 @@ function geocodeAddress(address) {
         .then(data => {
             if (data && data[0]) {
                 // Get the coordinates from the first result
-                lat = data[0].lat;
-                lon = data[0].lon;
+                const newLat = parseFloat(data[0].lat);
+                const newLon = parseFloat(data[0].lon);
                 
                 // Set the view to the new coordinates
-                map.setView([lat, lon], 13);
+                map.setView([newLat, newLon], 13);
                 
                 // Update the marker position
-                marker.setLatLng([lat, lon]).addTo(map)
-                      .bindPopup(`<b>${address}</b><br>Latitude: ${lat}, Longitude: ${lon}`)
+                marker.setLatLng([newLat, newLon]).addTo(map)
+                      .bindPopup(`<b>${address}</b><br>Latitude: ${newLat}, Longitude: ${newLon}`)
                       .openPopup();
-                      
-                // Query nearby train stations
-                getNearbyTrainStations(lat, lon);
+                
+                // Remove the previous line if it exists
+                if (line) {
+                    map.removeLayer(line);
+                }
+
+                // Draw a line from the initial location to the new location
+                line = L.polyline([[lat, lon], [newLat, newLon]], {color: 'red'}).addTo(map);
+
+                // Calculate and display the distance
+                const distance = getDistance(lat, lon, newLat, newLon);
+                alert(`The distance between the initial location and the entered address is ${Math.round(distance)} meters.`);
             } else {
                 alert('Address not found!');
             }
