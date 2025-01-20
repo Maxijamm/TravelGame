@@ -55,10 +55,8 @@ function geocodeAddress(address) {
                     map.removeLayer(addressMarker); // Remove the old address marker if it exists
                 }
                 
-                addressMarker = L.marker([newLat, newLon]).addTo(map)
-                    .bindPopup(`<b>${address}</b><br>Latitude: ${newLat}, Longitude: ${newLon}`)
-                    .openPopup();
-
+                addressMarker = L.marker([newLat, newLon]).addTo(map);
+                
                 // Remove any existing route if it exists
                 if (routeControl) {
                     routeControl.removeFrom(map);
@@ -75,7 +73,7 @@ function geocodeAddress(address) {
                 }).addTo(map);
 
                 // Calculate and display the distance and travel time
-                calculateRouteDetails(lat, lon, newLat, newLon);
+                calculateRouteDetails(lat, lon, newLat, newLon, addressMarker, address);
             } else {
                 alert('Address not found!');
             }
@@ -87,7 +85,7 @@ function geocodeAddress(address) {
 }
 
 // Function to calculate the route details
-function calculateRouteDetails(startLat, startLon, endLat, endLon) {
+function calculateRouteDetails(startLat, startLon, endLat, endLon, addressMarker, address) {
     // Fetch the route data from the OpenStreetMap (OSM) API
     var routeUrl = `https://router.project-osrm.org/route/v1/walking/${startLon},${startLat};${endLon},${endLat}?overview=false&geometries=polyline`;
     
@@ -98,12 +96,18 @@ function calculateRouteDetails(startLat, startLon, endLat, endLon) {
             const distance = route.distance / 1000; // Convert from meters to kilometers
             const duration = route.duration / 3600; // Convert from seconds to hours
 
-            // Display the distance and travel time
-            const distanceDisplay = document.getElementById('distance-display');
-            distanceDisplay.textContent = `Distance: ${distance.toFixed(2)} km`;
+            // Calculate travel time at 4 km/h
+            const travelTime = (distance / 4).toFixed(2); // Assuming walking speed of 4 km/h
 
-            const travelTimeDisplay = document.getElementById('travel-time-display');
-            travelTimeDisplay.textContent = `Estimated Travel Time: ${(duration * 4).toFixed(2)} hours at 4 km/h`;
+            // Update the popup with distance and travel time
+            const popupContent = `
+                <b>${address}</b><br>
+                Latitude: ${endLat}, Longitude: ${endLon}<br>
+                Distance: ${distance.toFixed(2)} km<br>
+                Estimated Travel Time: ${travelTime} hours at 4 km/h
+            `;
+
+            addressMarker.bindPopup(popupContent).openPopup();
         })
         .catch(error => {
             console.error('Error fetching route data:', error);
