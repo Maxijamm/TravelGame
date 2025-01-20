@@ -1,21 +1,20 @@
 let lat = 51.505;
 let lon = -0.09;
+let circle;
+let marker;
 
 // Initialize the map
-var map = L.map('map').setView([lat, lon], 13); // Coordinates for London (you can change this)
+var map = L.map('map').setView([lat, lon], 13); // Default coordinates (London) until an address is entered
 
 // Add OpenStreetMap tile layer to the map
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Marker position
-var marker = L.marker([lat, lon]).addTo(map)
+// Initialize the marker at the initial coordinates
+marker = L.marker([lat, lon]).addTo(map)
     .bindPopup("<b>Hello world!</b><br>I am a popup.")
     .openPopup();
-
-// Circle object
-var circle;
 
 // Function to toggle the circle around the marker
 function toggleCircle() {
@@ -24,7 +23,7 @@ function toggleCircle() {
         map.removeLayer(circle);
         circle = null; // Set the circle to null
     } else {
-        // Create a circle with 500m radius around the marker
+        // Create a circle with a 500m radius around the marker
         circle = L.circle([lat, lon], {
             color: 'blue',
             fillColor: 'blue',
@@ -73,5 +72,5 @@ document.getElementById('go-to-address-btn').addEventListener('click', function 
     }
 });
 
-// Event listener for the button click
+// Event listener for the button click to toggle the circle
 document.getElementById('toggle-circle-btn').addEventListener('click', toggleCircle);
