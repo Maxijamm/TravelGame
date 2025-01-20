@@ -7,17 +7,23 @@
     <link rel="stylesheet" href="styles.css">
     <!-- Include Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 </head>
 <body>
     <h1>Travel Game</h1>
     <div>
-        <div>Aktueller Standort: xyz</div>
+        <div>
+            Aktueller Standort:
+            <input type="text" id="address-input" placeholder="Enter an address">
+            <button id="go-to-address-btn">Go to Address</button>
+        </div>
         <div>Geld: 0€</div>
     </div>
     <div id="map"></div>
     <button id="toggle-circle-btn">Toggle Circle</button>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
