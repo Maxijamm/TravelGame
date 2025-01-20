@@ -11,7 +11,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Marker position
 var marker = L.marker([lat, lon]).addTo(map)
-    .bindPopup("I am a popup.")
+    .bindPopup("<b>Hello world!</b><br>I am a popup.")
     .openPopup();
 
 // Circle object
