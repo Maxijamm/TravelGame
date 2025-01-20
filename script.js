@@ -2,7 +2,7 @@ let lat = 51.505;
 let lon = -0.09;
 
 // Initialize the map
-var map = L.map('map').setView([51.505, -0.09], 13); // Coordinates for London (you can change this)
+var map = L.map('map').setView([lat, lon], 13); // Coordinates for London (you can change this)
 
 // Add OpenStreetMap tile layer to the map
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
