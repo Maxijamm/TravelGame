@@ -1,16 +1,20 @@
-let lat = 48.00923;
-let lon = 11.59002;
+let currLat = 48.00923;
+let currLon = 11.59002;
+let newLat = '';
+let newLon = '';
 let circle;
-let initialMarker;
-let addressMarker;  // Variable for the second marker
+let startMarker;
+let destMarker;  // Variable for the second marker
 let routeControl;  // Variable for the route control
 let routeDistance;  // Variable for the route distance
 let intervalId;  // To keep track of the progress update interval
 let startTime;  // To track the start time for progress calculation
 let currentProgress = 0; // Start progress from 0
+let currentPosition = { currLat, currLon }; // Current position of the player
+let destinationAddress = ""; // Store destination address for later use
 
 // Initialize the map
-var map = L.map('map').setView([lat, lon], 13); // Default coordinates (initial location)
+var map = L.map('map').setView([currLat, currLon], 13); // Default coordinates (initial location)
 
 // Add OpenStreetMap tile layer to the map
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -18,8 +22,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // Initialize the initial marker at the initial coordinates
-initialMarker = L.marker([lat, lon]).addTo(map)
-    .bindPopup("<b>Initial Location</b><br>Latitude: " + lat + ", Longitude: " + lon)
+startMarker = L.marker([currLat, currLon]).addTo(map)
+    .bindPopup("<b>Du befindest dich aktuell hier</b><br>Latitude: " + currLat + ", Longitude: " + currLon)
     .openPopup();
 
 // Function to toggle the circle around the initial marker
@@ -28,7 +32,7 @@ function toggleCircle() {
         map.removeLayer(circle);
         circle = null;
     } else {
-        circle = L.circle([lat, lon], {
+        circle = L.circle([currLat, currLon], {
             color: 'blue',
             fillColor: 'blue',
             fillOpacity: 0.3,
@@ -78,24 +82,24 @@ function geocodeAddress(address) {
         .then(response => response.json())
         .then(data => {
             if (data && data[0]) {
-                const newLat = parseFloat(data[0].lat);
-                const newLon = parseFloat(data[0].lon);
+                newLat = parseFloat(data[0].lat);
+                newLon = parseFloat(data[0].lon);
                 
                 map.setView([newLat, newLon], 13);
                 
-                if (addressMarker) {
-                    map.removeLayer(addressMarker);
-                }
+                if (destMarker)
+                    map.removeLayer(destMarker);
+                destMarker = L.marker([newLat, newLon]).addTo(map);
+                if (startMarker)
+                    map.removeLayer(startMarker);
+                startMarker = L.marker([currLat, currLon]).addTo(map);
+                if (routeControl)
+                    map.removeControl(routeControl);
                 
-                addressMarker = L.marker([newLat, newLon]).addTo(map);
-                
-                if (routeControl) {
-                    routeControl.removeFrom(map);
-                }
-                
+                // Create a new route control
                 routeControl = L.Routing.control({
                     waypoints: [
-                        L.latLng(lat, lon),
+                        L.latLng(currLat, currLon),
                         L.latLng(newLat, newLon)
                     ],
                     routeWhileDragging: true,
@@ -106,22 +110,25 @@ function geocodeAddress(address) {
                     draggableWaypoints: false
                 }).addTo(map);
 
-                calculateRouteDetails(lat, lon, newLat, newLon, addressMarker, address);
+                calculateRouteDetails(currLat, currLon, newLat, newLon, destMarker, address);
+
+                // Store the destination address
+                destinationAddress = address;
 
                 // Fetch and display the nearby train stations after the address is geocoded
                 getNearbyStations(newLat, newLon);
             } else {
-                alert('Address not found!');
+                document.getElementById('destination-location').textContent = 'Destination not found!';
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Unable to geocode the address.');
+            document.getElementById('destination-location').textContent = 'Unable to geocode the address.';
         });
 }
 
 // Function to calculate the route details
-function calculateRouteDetails(startLat, startLon, endLat, endLon, addressMarker, address) {
+function calculateRouteDetails(startLat, startLon, endLat, endLon, destMarker, address) {
     var routeUrl = `https://router.project-osrm.org/route/v1/walking/${startLon},${startLat};${endLon},${endLat}?overview=false&geometries=polyline`;
     
     fetch(routeUrl)
@@ -140,18 +147,16 @@ function calculateRouteDetails(startLat, startLon, endLat, endLon, addressMarker
                 Distance: ${distance.toFixed(2)} km<br>
                 Estimated Travel Time: ${travelTime} hours at 4 km/h<br>
                 <button id="start-btn">Start</button><br>
-                <progress id="progress-bar" value="0" max="100"></progress>
-                <span id="progress-text">0%</span>
             `;
             
-            addressMarker.bindPopup(popupContent).openPopup();
+            destMarker.bindPopup(popupContent).openPopup();
 
             // Add event listener to the "Start" button
             document.getElementById('start-btn').addEventListener('click', startProgress);
         })
         .catch(error => {
             console.error('Error fetching route data:', error);
-            alert('Unable to fetch route data.');
+            document.getElementById('destination-location').textContent = 'Unable to fetch route data.';
         });
 }
 
@@ -162,9 +167,13 @@ function startProgress() {
     const progressBar = document.getElementById('progress-bar');
     const progressText = document.getElementById('progress-text');
 
+    // Display start and destination information in the 'route-info' div
+    document.getElementById('start-location').textContent = `Start Location: Latitude: ${currLat}, Longitude: ${currLon}`;
+    document.getElementById('destination-location').textContent = `Destination: ${destinationAddress}`;
+
     intervalId = setInterval(() => {
         const elapsedTime = (Date.now() - startTime) / 1000 / 3600; // Time elapsed in hours
-        const distanceTraveled = 4 * elapsedTime; // Distance traveled based on 4 km/h
+        const distanceTraveled = 100 * elapsedTime; // Distance traveled based on 4 km/h
 
         currentProgress = Math.min((distanceTraveled / routeDistance) * 100, 100);
 
@@ -172,8 +181,29 @@ function startProgress() {
         progressText.textContent = `${currentProgress.toFixed(2)}%`;
 
         if (currentProgress >= 100) {
+            // Update the current position once the destination is reached
+            currLat = newLat;
+            currLon = newLon;
+            document.getElementById('current-position').innerHTML = document.getElementById('address-input').value;
+
             clearInterval(intervalId);
-            alert('Arrived at the destination!');
+
+            // Clear old route, address marker, and start marker
+                map.removeControl(routeControl);  // Removes the routing line
+                map.removeLayer(destMarker);  // Removes the destination marker
+                map.removeLayer(startMarker);  // Removes the origin marker
+                startMarker = L.marker([currLat, currLon]).addTo(map)
+                    .bindPopup("<b>Du befindest dich aktuell hier</b><br>Latitude: " + currLat + ", Longitude: " + currLon)
+                    .openPopup();
+
+            // Optionally, reset progress bar
+            progressBar.value = 0;
+            progressText.textContent = '0%';
+
+            // Reset the input field
+            document.getElementById('address-input').value = '';
+            document.getElementById('start-location').textContent = '';
+            document.getElementById('destination-location').textContent = '';
         }
     }, 1000);
 }
@@ -184,7 +214,7 @@ document.getElementById('go-to-address-btn').addEventListener('click', function 
     if (address) {
         geocodeAddress(address);
     } else {
-        alert('Please enter an address.');
+        document.getElementById('destination-location').textContent = 'Please enter an address.';
     }
 });
 
