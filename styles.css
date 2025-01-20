@@ -1,6 +1,6 @@
 /* Set the size of the map container */
 #map {
-    height: 800px; /* Add px for height */
+    height: 400px; /* Add px for height */
     width: 50%;    /* Add % for width */
 }
 
