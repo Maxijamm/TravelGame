@@ -6,9 +6,6 @@
 
 /* Style the button */
 #toggle-circle-btn {
-    position: absolute;
-    top: 20px;
-    left: 20px;
     z-index: 1000;
     padding: 10px;
     background-color: #008CBA;
