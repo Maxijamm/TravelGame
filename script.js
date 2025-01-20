@@ -11,7 +11,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Marker position
 var marker = L.marker([lat, lon]).addTo(map)
-    .bindPopup("Aktueller Standort")
+    .bindPopup("I am a popup.")
     .openPopup();
 
 // Circle object
@@ -51,6 +51,7 @@ function geocodeAddress(address) {
                 
                 // Update the marker position
                 marker.setLatLng([lat, lon]).addTo(map)
+                      .bindPopup(`<b>${address}</b><br>Latitude: ${lat}, Longitude: ${lon}`)
                       .openPopup();
             } else {
                 alert('Address not found!');
