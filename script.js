@@ -1,3 +1,6 @@
+let lat = 51.505;
+let lon = -0.09;
+
 // Initialize the map
 var map = L.map('map').setView([51.505, -0.09], 13); // Coordinates for London (you can change this)
 
@@ -7,7 +10,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // Marker position
-var marker = L.marker([51.505, -0.09]).addTo(map)
+var marker = L.marker([lat, lon]).addTo(map)
     .bindPopup("<b>Hello world!</b><br>I am a popup.")
     .openPopup();
 
@@ -22,7 +25,7 @@ function toggleCircle() {
         circle = null; // Set the circle to null
     } else {
         // Create a circle with 500m radius around the marker
-        circle = L.circle([51.505, -0.09], {
+        circle = L.circle([lat, lon], {
             color: 'blue',
             fillColor: 'blue',
             fillOpacity: 0.3,
@@ -40,8 +43,8 @@ function geocodeAddress(address) {
         .then(data => {
             if (data && data[0]) {
                 // Get the coordinates from the first result
-                var lat = data[0].lat;
-                var lon = data[0].lon;
+                lat = data[0].lat;
+                lon = data[0].lon;
                 
                 // Set the view to the new coordinates
                 map.setView([lat, lon], 13);
