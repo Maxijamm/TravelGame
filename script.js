@@ -2,7 +2,6 @@ let lat = 48.00923;
 let lon = 11.59002;
 let circle;
 let marker;
-let line;  // Variable for the polyline
 
 // Initialize the map
 var map = L.map('map').setView([lat, lon], 13); // Default coordinates (initial location)
@@ -53,18 +52,6 @@ function geocodeAddress(address) {
                 marker.setLatLng([newLat, newLon]).addTo(map)
                       .bindPopup(`<b>${address}</b><br>Latitude: ${newLat}, Longitude: ${newLon}`)
                       .openPopup();
-                
-                // Remove the previous line if it exists
-                if (line) {
-                    map.removeLayer(line);
-                }
-
-                // Draw a line from the initial location to the new location
-                line = L.polyline([[lat, lon], [newLat, newLon]], {color: 'red'}).addTo(map);
-
-                // Calculate and display the distance
-                const distance = getDistance(lat, lon, newLat, newLon);
-                alert(`The distance between the initial location and the entered address is ${Math.round(distance)} meters.`);
             } else {
                 alert('Address not found!');
             }
