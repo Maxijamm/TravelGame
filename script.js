@@ -67,7 +67,7 @@ function geocodeAddress(address) {
 
 // Function to get the closest 3 train stations using Overpass API
 function getNearbyTrainStations(lat, lon) {
-    const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];(node(around:1000,${lat},${lon})[railway=station];);out body;`;
+    const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];(node(around:5000,${lat},${lon})[railway=station];);out body;`;
 
     fetch(overpassUrl)
         .then(response => response.json())
