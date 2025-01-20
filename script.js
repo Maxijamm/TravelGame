@@ -1,7 +1,6 @@
 let lat = 48.00923;
 let lon = 11.59002;
 let circle;
-let initmarker;
 let marker;
 let line;  // Variable for the polyline
 
@@ -14,7 +13,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // Initialize the marker at the initial coordinates
-initmarker = L.marker([lat, lon]).addTo(map)
+marker = L.marker([lat, lon]).addTo(map)
     .bindPopup("<b>Initial Location</b><br>Latitude: " + lat + ", Longitude: " + lon)
     .openPopup();
 
@@ -50,10 +49,10 @@ function geocodeAddress(address) {
                 // Set the view to the new coordinates
                 map.setView([newLat, newLon], 13);
                 
-                // Create new marker at entered position
-                marker = L.marker([lat, lon]).addTo(map)
-                    .bindPopup("<b>Initial Location</b><br>Latitude: " + lat + ", Longitude: " + lon)
-                    .openPopup();
+                // Update the marker position
+                marker.setLatLng([newLat, newLon]).addTo(map)
+                      .bindPopup(`<b>${address}</b><br>Latitude: ${newLat}, Longitude: ${newLon}`)
+                      .openPopup();
                 
                 // Remove the previous line if it exists
                 if (line) {
