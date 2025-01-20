@@ -52,6 +52,9 @@ function geocodeAddress(address) {
                 marker.setLatLng([lat, lon]).addTo(map)
                       .bindPopup(`<b>${address}</b><br>Latitude: ${lat}, Longitude: ${lon}`)
                       .openPopup();
+                      
+                // Query nearby train stations
+                getNearbyTrainStations(lat, lon);
             } else {
                 alert('Address not found!');
             }
@@ -60,6 +63,57 @@ function geocodeAddress(address) {
             console.error('Error:', error);
             alert('Unable to geocode the address.');
         });
+}
+
+// Function to get the closest 3 train stations using Overpass API
+function getNearbyTrainStations(lat, lon) {
+    const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];(node(around:1000,${lat},${lon})[railway=station];);out body;`;
+
+    fetch(overpassUrl)
+        .then(response => response.json())
+        .then(data => {
+            const stations = data.elements;
+            
+            // Sort stations by distance from the current position
+            stations.sort((a, b) => {
+                const distanceA = getDistance(lat, lon, a.lat, a.lon);
+                const distanceB = getDistance(lat, lon, b.lat, b.lon);
+                return distanceA - distanceB;
+            });
+            
+            // Take the closest 3 stations
+            const closestStations = stations.slice(0, 3);
+            
+            // Display the closest stations in the console or as a list in the HTML
+            const stationsList = document.getElementById('stations-list');
+            stationsList.innerHTML = ''; // Clear the list before adding new items
+
+            closestStations.forEach(station => {
+                const li = document.createElement('li');
+                li.textContent = `${station.tags.name || 'Unnamed station'} (Distance: ${Math.round(getDistance(lat, lon, station.lat, station.lon))} meters)`;
+                stationsList.appendChild(li);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Unable to fetch train station data.');
+        });
+}
+
+// Helper function to calculate the distance between two geographic points (in meters)
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // Earth radius in meters
+    const phi1 = lat1 * Math.PI / 180;
+    const phi2 = lat2 * Math.PI / 180;
+    const deltaPhi = (lat2 - lat1) * Math.PI / 180;
+    const deltaLambda = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+              Math.cos(phi1) * Math.cos(phi2) *
+              Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // Distance in meters
 }
 
 // Event listener for the "Go to Address" button click
