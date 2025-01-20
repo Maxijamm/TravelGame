@@ -1,7 +1,7 @@
 /* Set the size of the map container */
 #map {
-    height: 800;
-    width: 50%;
+    height: 800px; /* Add px for height */
+    width: 50%;    /* Add % for width */
 }
 
 /* Style the button */
