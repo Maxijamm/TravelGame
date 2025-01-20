@@ -1,0 +1,23 @@
+/* Set the size of the map container */
+#map {
+    height: 50vh;
+    width: 50%;
+}
+
+/* Style the button */
+#toggle-circle-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    padding: 10px;
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#toggle-circle-btn:hover {
+    background-color: #007B9F;
+}
