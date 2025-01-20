@@ -1,7 +1,8 @@
 let lat = 48.00923;
 let lon = 11.59002;
 let circle;
-let marker;
+let initialMarker;
+let addressMarker;  // Variable for the second marker
 
 // Initialize the map
 var map = L.map('map').setView([lat, lon], 13); // Default coordinates (initial location)
@@ -11,19 +12,19 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Initialize the marker at the initial coordinates
-marker = L.marker([lat, lon]).addTo(map)
+// Initialize the initial marker at the initial coordinates
+initialMarker = L.marker([lat, lon]).addTo(map)
     .bindPopup("<b>Initial Location</b><br>Latitude: " + lat + ", Longitude: " + lon)
     .openPopup();
 
-// Function to toggle the circle around the marker
+// Function to toggle the circle around the initial marker
 function toggleCircle() {
     if (circle) {
         // If the circle exists, remove it from the map
         map.removeLayer(circle);
         circle = null; // Set the circle to null
     } else {
-        // Create a circle with a 500m radius around the marker
+        // Create a circle with a 500m radius around the initial marker
         circle = L.circle([lat, lon], {
             color: 'blue',
             fillColor: 'blue',
@@ -48,10 +49,18 @@ function geocodeAddress(address) {
                 // Set the view to the new coordinates
                 map.setView([newLat, newLon], 13);
                 
-                // Update the marker position
-                marker.setLatLng([newLat, newLon]).addTo(map)
-                      .bindPopup(`<b>${address}</b><br>Latitude: ${newLat}, Longitude: ${newLon}`)
-                      .openPopup();
+                // Create a new marker for the entered address
+                if (addressMarker) {
+                    map.removeLayer(addressMarker); // Remove the old address marker if it exists
+                }
+                
+                addressMarker = L.marker([newLat, newLon]).addTo(map)
+                    .bindPopup(`<b>${address}</b><br>Latitude: ${newLat}, Longitude: ${newLon}`)
+                    .openPopup();
+                
+                // Optionally, calculate and show the distance
+                const distance = getDistance(lat, lon, newLat, newLon);
+                alert(`The distance between the initial location and the entered address is ${Math.round(distance)} meters.`);
             } else {
                 alert('Address not found!');
             }
