@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="styles.css">
     <!-- Include Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <!-- Use Leaflet Geocoder from CDNJS (No source-map issue) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-control-geocoder/2.7.0/Control.Geocoder.css" />
 </head>
 <body>
     <h1>Travel Game</h1>
@@ -23,7 +24,7 @@
     <button id="toggle-circle-btn">Toggle Circle</button>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-control-geocoder/2.7.0/Control.Geocoder.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
