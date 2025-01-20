@@ -4,6 +4,10 @@ let circle;
 let initialMarker;
 let addressMarker;  // Variable for the second marker
 let routeControl;  // Variable for the route control
+let routeDistance;  // Variable for the route distance
+let intervalId;  // To keep track of the progress update interval
+let startTime;  // To track the start time for progress calculation
+let currentProgress = 0; // Start progress from 0
 
 // Initialize the map
 var map = L.map('map').setView([lat, lon], 13); // Default coordinates (initial location)
@@ -21,11 +25,9 @@ initialMarker = L.marker([lat, lon]).addTo(map)
 // Function to toggle the circle around the initial marker
 function toggleCircle() {
     if (circle) {
-        // If the circle exists, remove it from the map
         map.removeLayer(circle);
-        circle = null; // Set the circle to null
+        circle = null;
     } else {
-        // Create a circle with a 500m radius around the initial marker
         circle = L.circle([lat, lon], {
             color: 'blue',
             fillColor: 'blue',
@@ -43,36 +45,30 @@ function geocodeAddress(address) {
         .then(response => response.json())
         .then(data => {
             if (data && data[0]) {
-                // Get the coordinates from the first result
                 const newLat = parseFloat(data[0].lat);
                 const newLon = parseFloat(data[0].lon);
                 
-                // Set the view to the new coordinates
                 map.setView([newLat, newLon], 13);
                 
-                // Create a new marker for the entered address
                 if (addressMarker) {
-                    map.removeLayer(addressMarker); // Remove the old address marker if it exists
+                    map.removeLayer(addressMarker);
                 }
                 
                 addressMarker = L.marker([newLat, newLon]).addTo(map);
                 
-                // Remove any existing route if it exists
                 if (routeControl) {
                     routeControl.removeFrom(map);
                 }
                 
-                // Create a walking route between the initial marker and the address marker
                 routeControl = L.Routing.control({
                     waypoints: [
-                        L.latLng(lat, lon),  // Starting point
-                        L.latLng(newLat, newLon)  // Destination point
+                        L.latLng(lat, lon),
+                        L.latLng(newLat, newLon)
                     ],
                     routeWhileDragging: true,
-                    createMarker: function() { return null; } // Do not create markers along the route
+                    createMarker: function() { return null; }
                 }).addTo(map);
 
-                // Calculate and display the distance and travel time
                 calculateRouteDetails(lat, lon, newLat, newLon, addressMarker, address);
             } else {
                 alert('Address not found!');
@@ -86,7 +82,6 @@ function geocodeAddress(address) {
 
 // Function to calculate the route details
 function calculateRouteDetails(startLat, startLon, endLat, endLon, addressMarker, address) {
-    // Fetch the route data from the OpenStreetMap (OSM) API
     var routeUrl = `https://router.project-osrm.org/route/v1/walking/${startLon},${startLat};${endLon},${endLat}?overview=false&geometries=polyline`;
     
     fetch(routeUrl)
@@ -94,25 +89,55 @@ function calculateRouteDetails(startLat, startLon, endLat, endLon, addressMarker
         .then(data => {
             const route = data.routes[0];
             const distance = route.distance / 1000; // Convert from meters to kilometers
-            const duration = route.duration / 3600; // Convert from seconds to hours
 
-            // Calculate travel time at 4 km/h
+            routeDistance = distance; // Save the distance for progress tracking
+
             const travelTime = (distance / 4).toFixed(2); // Assuming walking speed of 4 km/h
 
-            // Update the popup with distance and travel time
             const popupContent = `
                 <b>${address}</b><br>
                 Latitude: ${endLat}, Longitude: ${endLon}<br>
                 Distance: ${distance.toFixed(2)} km<br>
-                Estimated Travel Time: ${travelTime} hours at 4 km/h
+                Estimated Travel Time: ${travelTime} hours at 4 km/h<br>
+                <button id="start-btn">Start</button><br>
+                <progress id="progress-bar" value="0" max="100"></progress>
+                <span id="progress-text">0%</span>
             `;
-
+            
             addressMarker.bindPopup(popupContent).openPopup();
+
+            // Add event listener to the "Start" button
+            document.getElementById('start-btn').addEventListener('click', startProgress);
         })
         .catch(error => {
             console.error('Error fetching route data:', error);
             alert('Unable to fetch route data.');
         });
+}
+
+// Function to start the progress of the route
+function startProgress() {
+    // Reset the progress and start time
+    currentProgress = 0;
+    startTime = Date.now(); // Start the timer to track progress
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+
+    // Update progress every second based on walking speed (4 km/h)
+    intervalId = setInterval(() => {
+        const elapsedTime = (Date.now() - startTime) / 1000 / 3600; // Time elapsed in hours
+        const distanceTraveled = 4 * elapsedTime; // Distance traveled based on 4 km/h
+
+        currentProgress = Math.min((distanceTraveled / routeDistance) * 100, 100); // Calculate progress as percentage
+
+        progressBar.value = currentProgress;
+        progressText.textContent = `${currentProgress.toFixed(2)}%`; // Update the progress text
+
+        if (currentProgress >= 100) {
+            clearInterval(intervalId); // Stop the interval once progress reaches 100%
+            alert('Arrived at the destination!');
+        }
+    }, 1000); // Update every second
 }
 
 // Event listener for the "Go to Address" button click
