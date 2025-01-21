@@ -143,8 +143,8 @@ function calculateRouteDetails(startLat, startLon, endLat, endLon, destMarker, a
             let hours = Math.floor(travelTime);
             let minutes = travelTime - hours;
             const now = new Date();
-            const etaHours = (now.getHours()+hours).toString.padStart(2, '0');
-            const etaMinutes = (now.getMinutes()+minutes).toString.padStart(2, '0');
+            const etaHours = (now.getHours()+hours).toString().padStart(2, '0');
+            const etaMinutes = (now.getMinutes()+minutes).toString().padStart(2, '0');
 
             const popupContent = `
                 <b>${address}</b><br>
