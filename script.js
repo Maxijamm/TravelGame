@@ -13,6 +13,31 @@ let currentProgress = 0; // Start progress from 0
 let currentPosition = { currLat, currLon }; // Current position of the player
 let destinationAddress = ""; // Store destination address for later use
 
+// Check if there's saved progress in localStorage and load it
+function loadSavedState() {
+    const savedState = JSON.parse(localStorage.getItem('playerState'));
+    if (savedState) {
+        currLat = savedState.lat;
+        currLon = savedState.lon;
+        currentProgress = savedState.progress;
+        destinationAddress = savedState.destinationAddress;
+        startTime = savedState.startTime;
+        currentPosition = { currLat, currLon };
+    }
+}
+
+// Save the current state to localStorage
+function saveState() {
+    const state = {
+        lat: currLat,
+        lon: currLon,
+        progress: currentProgress,
+        destinationAddress: destinationAddress,
+        startTime: startTime
+    };
+    localStorage.setItem('playerState', JSON.stringify(state));
+}
+
 // Initialize the map
 var map = L.map('map').setView([currLat, currLon], 13); // Default coordinates (initial location)
 
@@ -25,6 +50,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 startMarker = L.marker([currLat, currLon]).addTo(map)
     .bindPopup("<b>Du befindest dich aktuell hier</b><br>Latitude: " + currLat + ", Longitude: " + currLon)
     .openPopup();
+
+// Load saved state when the page loads
+loadSavedState();
 
 // Function to toggle the circle around the initial marker
 function toggleCircle() {
@@ -185,6 +213,9 @@ function startProgress() {
         progressBar.value = currentProgress;
         progressText.textContent = `${currentProgress.toFixed(2)}%`;
 
+        // Save state periodically
+        saveState();
+
         if (currentProgress >= 100) {
             // Update the current position once the destination is reached
             currLat = newLat;
@@ -194,12 +225,12 @@ function startProgress() {
             clearInterval(intervalId);
 
             // Clear old route, address marker, and start marker
-                map.removeControl(routeControl);  // Removes the routing line
-                map.removeLayer(destMarker);  // Removes the destination marker
-                map.removeLayer(startMarker);  // Removes the origin marker
-                startMarker = L.marker([currLat, currLon]).addTo(map)
-                    .bindPopup("<b>Du befindest dich aktuell hier</b><br>Latitude: " + currLat + ", Longitude: " + currLon)
-                    .openPopup();
+            map.removeControl(routeControl);  // Removes the routing line
+            map.removeLayer(destMarker);  // Removes the destination marker
+            map.removeLayer(startMarker);  // Removes the origin marker
+            startMarker = L.marker([currLat, currLon]).addTo(map)
+                .bindPopup("<b>Du befindest dich aktuell hier</b><br>Latitude: " + currLat + ", Longitude: " + currLon)
+                .openPopup();
 
             // Optionally, reset progress bar
             progressBar.value = 0;
