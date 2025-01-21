@@ -206,7 +206,7 @@ function startProgress() {
 
     intervalId = setInterval(() => {
         const elapsedTime = (Date.now() - startTime) / 1000 / 3600; // Time elapsed in hours
-        const distanceTraveled = 4 * elapsedTime; // Distance traveled based on 4 km/h
+        const distanceTraveled = 100 * elapsedTime; // Distance traveled based on 4 km/h
 
         currentProgress = Math.min((distanceTraveled / routeDistance) * 100, 100);
 
