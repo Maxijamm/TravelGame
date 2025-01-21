@@ -150,7 +150,7 @@ function calculateRouteDetails(startLat, startLon, endLat, endLon, destMarker, a
                 Latitude: ${endLat}, Longitude: ${endLon}<br>
                 Distance: ${distance.toFixed(2)} km<br>
                 Estimated Travel Time: ${travelTime} hours at 4 km/h<br>
-                Estimated Arrival Time: ${etaHours}:${etaMinutes}<br>
+                Estimated Arrival Time: ca. ${etaHours}:${etaMinutes} Uhr<br>
                 <button id="start-btn">Start</button><br>
             `;
             
