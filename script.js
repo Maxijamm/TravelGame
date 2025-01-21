@@ -140,12 +140,18 @@ function calculateRouteDetails(startLat, startLon, endLat, endLon, destMarker, a
             routeDistance = distance;
 
             const travelTime = (distance / 4).toFixed(2); // Assuming walking speed of 4 km/h
+            let hours = Math.floor(travelTime);
+            let minutes = travelTime - hours;
+            const now = new Date();
+            const etaHours = (now.getHours()+hours).toString.padStart(2, '0');
+            const etaMinutes = (now.getMinutes()+minutes).toString.padStart(2, '0');
 
             const popupContent = `
                 <b>${address}</b><br>
                 Latitude: ${endLat}, Longitude: ${endLon}<br>
                 Distance: ${distance.toFixed(2)} km<br>
                 Estimated Travel Time: ${travelTime} hours at 4 km/h<br>
+                Estimated Arrival Time: ${etaHours}:${etaMinutes}<br>
                 <button id="start-btn">Start</button><br>
             `;
             
