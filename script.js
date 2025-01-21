@@ -140,11 +140,10 @@ function calculateRouteDetails(startLat, startLon, endLat, endLon, destMarker, a
             routeDistance = distance;
 
             const travelTime = (distance / 4).toFixed(2); // Assuming walking speed of 4 km/h
-            let hours = Math.floor(travelTime);
-            let minutes = travelTime - hours;
             const now = new Date();
-            const etaHours = (now.getHours()+hours).toString().padStart(2, '0');
-            const etaMinutes = (now.getMinutes()+minutes).toString().padStart(2, '0');
+            const etaTime = new Date(now.getTime() + travelTime * 60 * 60 * 1000);
+            const etaHours = etaTime.getHours().toString().padStart(2, '0');
+            const etaMinutes = etaTime.getMinutes().toString().padStart(2, '0');
 
             const popupContent = `
                 <b>${address}</b><br>
